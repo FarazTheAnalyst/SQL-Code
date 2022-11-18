@@ -1,0 +1,120 @@
+SELECT from WORLD Tutorial
+
+SELECT attribute-list
+   FROM table-name
+   WHERE condition
+attribute-list
+This is usually a comma separated list of attributes (field names)
+Expressions involving these attributes may be used. The normal mathematical operators +, -, *, / may be used on numeric values. String values may be concatenated using ||
+To select all attributes use *
+The attributes in this case are: name, region, area, population and gdp
+table-name
+In these examples the table is always world.
+condition
+This is a boolean expression which each row must satisfy.
+Operators which may be used include AND, OR, NOT, >, >=, =, <, <=
+The LIKE operator permits strings to be compared using 'wild cards'. The symbols _ and % are used to represent a single character or a sequence of characters. Note that MS Access SQL uses ? and * instead of _ and % .
+The IN operator allows an item to be tested against a list of values.
+There is a BETWEEN operator for checking ranges.
+
+# show the name, continent and population of all countries.
+SELECT name, continent, population FROM world
+
+# The population of 'France'. Strings should be in 'single quotes';
+SELECT population FROM world
+  WHERE name = 'France'
+
+# The names and population densities for the very large countries. We can use mathematical and string expressions as well as field names and constants.
+SELECT name, population/area FROM world
+  WHERE area > 5000000
+
+#Where to find some very small, very rich countries. We use AND to ensure that two or more conditions hold true.
+SELECT name , region
+  FROM world
+  WHERE area < 2000
+    AND gdp > 5000000000
+
+# Which of Ceylon, Iran, Persia and Sri Lanka is the name of a country? The word IN allows us to check if an item is in a list.
+SELECT name FROM world
+  WHERE name IN ('Sri Lanka', 'Ceylon',
+                 'Persia',    'Iran')
+
+# What are the countries beginning with D? The word LIKE permits pattern matching - % is the wildcard.
+SELECT name FROM world
+  WHERE name LIKE 'D%'
+
+# 
+Which countries are not too small and not too big? BETWEEN allows range checking - note that it is inclusive.
+SELECT name, area FROM world
+  WHERE area BETWEEN 207600 AND 244820
+
+# show the name, continent and population of all countries.
+SELECT name, continent, population FROM world
+
+#  Show the name for the countries that have a population of at least 200 million. 200 million is 200000000, there are eight zeros.
+SELECT name FROM world
+WHERE population >= 200000000
+
+# Give the name and the per capita GDP for those countries with a population of at least 200 million.
+# per capita GDP is the GDP divided by the population GDP/population
+SELECT name, gdp/population FROM world
+WHERE population >= 200000000
+
+# Show the name and population in millions for the countries of the continent 'South America'. Divide the population by 1000000 to get population in millions.
+SELECT name, population/1000000 FROM world
+WHERE continent = 'South America'
+
+# 
+Show the name and population for France, Germany, Italy
+SELECT name, population FROM world
+WHERE name IN ('France', 'Germany', 'Italy')
+
+# Show the countries which have a name that includes the word 'United'
+SELECT name FROM world
+WHERE name LIKE 'United%'
+
+# Two ways to be big: A country is big if it has an area of more than 3 million sq km or it has a population of more than 250 million.
+# Show the countries that are big by area or big by population. Show name, population and area.
+SELECT name, population, area FROM world
+WHERE area >= 3000000 OR  population >= 250000000
+
+# Exclusive OR (XOR). Show the countries that are big by area (more than 3 million) or big by population (more than 250 million) but not both. Show name, population and area.
+
+Australia has a big area but a small population, it should be included.
+Indonesia has a big population but a small area, it should be included.
+China has a big population and big area, it should be excluded.
+United Kingdom has a small population and a small area, it should be excluded.
+SELECT name, population, area
+  FROM world
+  WHERE (population > 250000000) OR (area > 3000000)
+
+# Show the name and population in millions and the GDP in billions for the countries of the continent 'South America'. Use the ROUND function to show the values to two decimal places.
+#For South America show population in millions and GDP in billions both to 2 decimal places.
+SELECT name, round(population/1000000, 2), round(gdp/1000000000, 2)
+ FROM world
+WHERE continent = 'South America'
+
+# SELECT name,  round(gdp/population, -3) 
+FROM world
+WHERE gdp >= 1000000000000
+
+# The capital of Sweden is Stockholm. Both words start with the letter 'S'.
+
+#Show the name and the capital where the first letters of each match. Don't include countries where the name and the capital are the same word.
+#You can use the function LEFT to isolate the first character.
+#You can use <> as the NOT EQUALS operator.
+SELECT name, capital
+FROM world
+WHERE LEFT(name,1)=LEFT(capital,1) AND name <> capital
+
+# Equatorial Guinea and Dominican Republic have all of the vowels (a e i o u) in the name. They don't count because they have more than one word in the name.
+#Find the country that has all the vowels and no spaces in its name.
+#You can use the phrase name NOT LIKE '%a%' to exclude characters from your results.
+SELECT name
+   FROM world
+WHERE name LIKE '%a%' AND name LIKE '%e%' AND name LIKE '%i%' AND name LIKE '%o%' AND name LIKE '%u%'
+ AND name NOT LIKE '% %'
+
+
+
+

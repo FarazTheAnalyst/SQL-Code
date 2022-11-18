@@ -1,0 +1,15 @@
+-- SELECT
+--A SELECT statement gets data from a table. Each table contains rows and columns - 
+--you can SELECT some columns and ignore others
+--The column names on the select line control which columns you get
+--The FROM clause controls which table you access
+--The table games shows the year and the city hosting the Olympic Games.
+
+-- 1. The SELECT statement returns results from a table. 
+-- In this example the table is games and the columns are yr and city.
+
+SELECT yr, city FROM games;
+
+
+
+

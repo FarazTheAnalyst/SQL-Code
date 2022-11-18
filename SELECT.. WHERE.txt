@@ -1,0 +1,423 @@
+--SELECT..WHERE --
+
+-- The table games shows the year and the city hosting the Olympic Games.
+
+-- games
+-- yr	city
+-- 2000	Sydney
+-- 2004	Athens
+-- 2008	Beijing
+-- 2012	London
+
+-- 1. The SELECT statement
+-- returns results from a table. With a WHERE clause only some rows are returned. This example shows the year that Athens hosted the Olympic games.
+
+SELECT yr, city 
+FROM games
+WHERE yr = 2004;
+
+--  SELECT .. GROUP BY --
+
+-- 2. Host cities and continents for the Olympics Games are stored in the table games. Notice that Europe appears in the table twice:
+
+-- yr	city	continent
+-- 2000	Sydney	Australasia
+-- 2004	Athens	Europe
+-- 2008	Beijing	Asia
+-- 2012	London	Europe
+-- 2016	Rio	South America
+
+-- In a GROUP BY statement only distinct values are shown for the column 
+-- in the GROUP BY. This example shows the continents hosting the Olympics with the count of the number of games held.
+
+SELECT continent, COUNT(yr) FROM games
+ GROUP BY continent;
+
+-- The SELECT .. JOIN statement --
+
+-- 3. Sometimes you need to access two or more tables to get the data required.
+
+-- games
+-- yr	city
+-- 1896	Athens
+-- 1948	London
+-- 2004	Athens
+-- 2008	Beijing
+-- 2012	London
+                      -- city
+                  -- name	country
+                -- Sydney	Australia
+                -- Athens	Greece
+                -- Beijing	China
+                -- London	UK
+--  You can use a JOIN to get results from two or more related tables. 
+-- In this example each row of the table games is related to a row of the 
+-- table city. If you want to find the country where the games took place 
+-- you must JOIN the games table to the city table on the common field that is games.city and city.name
+
+-- SELECT games.yr, city.country
+  FROM games JOIN city
+       ON (games.city = city.name);
+
+-- SELECT .. SELECT --
+-- Subquery Table, Derived Tables, Nested Queries
+-- You can use the results from one query in another query
+
+-- Subquery with FROM
+
+-- 1.You may use a SELECT statement in the FROM line.
+
+In this case the derived table X has columns name and gdp_per_capita. 
+-- The calculated values in the inner SELECT can be used in the outer SELECT.
+
+SELECT name, ROUND(gdp_per_capita)
+  FROM
+  (SELECT name,
+          gdp/population AS gdp_per_capita
+     FROM bbc) X
+ WHERE gdp_per_capita>20000;
+
+-- Notice that
+
+-- the inner table is given an alias X
+-- the first column in the inner query keeps its name
+-- the second column in the inner query has an alias
+
+-- Subquery with IN --
+
+-- 2.Find the countries in the same region as Bhutan
+-- You may use a SELECT statement in the WHERE line - this returns a list of regions.
+
+SELECT name
+  FROM bbc
+ WHERE region IN
+  (SELECT region FROM bbc
+    WHERE name='Bhutan');
+
+-- Correlated Subquery --
+
+-- 3. If a value from the outer query appears in the inner query this is "correlated subquery".
+
+-- Show the countries where the population is greater than 5 times the average for its region
+
+SELECT name
+  FROM bbc b1
+ WHERE population> 
+  5*(SELECT AVG(population) FROM bbc
+     WHERE region=b1.region);
+
+-- INSERT .. VALUES --
+
+-- The INSERT command is used to add a new row to a table.
+
+-- INSERT INTO games(yr, city) VALUES (2012,'London')
+-- The table is games
+-- The column names are yr and city
+-- Strings in the literal values must be quoted with single quotes.
+
+-- Example
+-- games
+-- yr	 city
+-- 2000 Sydney
+-- 2004	 Athens
+-- 2008	 Beijing
+
+-- You want to add the next Olympic games, in the year 2012, which will be held in London.
+
+-- 1. The INSERT statement adds a new row to the table:
+
+INSERT INTO games(yr,city) 
+VALUES (2012,'London');
+SELECT * FROM games;
+
+-- What can go wrong 
+
+-- 2. Your INSERT statement may break some database rule such as the unique 
+-- key requirement. In this example there is a primary key on year - 
+-- that means that there may not be two rows with the same year. If you attempt to add a second row with 2008 for yr then you will get an error.
+
+INSERT INTO games(yr,city) 
+VALUES (2008,'Paris');
+SELECT * FROM games;
+
+-- 3. INSERT .. SELECT --
+
+-- You can use the results of a SELECT statement to insert rows into another table.
+-- The table games shows the year and the city hosting the Olympic Games.
+
+
+-- games (before)
+-- yr	city
+-- 2000	Sydney
+-- 2004	Athens
+-- 2008	Beijing
+-- games (after)
+	
+-- games (after)
+-- yr	city
+-- 2000	Sydney
+-- Athens
+-- 2008	Beijing
+-- 2012	Sydney
+-- 2016	Athens
+-- 2020	Beijing
+
+-- 
+The INSERT SELECT statement adds a new row to the table based on 
+-- a SELECT statement: In this example you run the next three Olympic games in the same three venues:
+
+INSERT INTO games(yr,city)
+  SELECT yr+12, city FROM games;
+
+SELECT * FROM games;
+
+-- 4. UPDATE --
+
+-- The table games shows the year and the city hosting the Olympic Games.
+
+-- games
+-- yr	city
+-- 2000	Sydney
+-- 2004	Athens
+-- 2008	Beijing
+-- 2012	London
+
+-- The table number shows the year and the city hosting the Olympic Games.
+
+-- number
+-- yr	number
+-- 2000	1
+-- 2004	2
+-- 2008	3
+-- 2012	4
+
+-- The UPDATE statement can be used to change a values in rows that already exists. In this example we move the 2012 games from London to Paris.
+
+UPDATE games SET city='Paris' WHERE yr = 2012;
+SELECT * FROM games;
+
+-- DELETE --
+
+-- 5.The table games shows the year and the city hosting the Olympic Games.
+
+-- games
+-- yr	city
+-- 2000	Sydney
+-- 2004	Athens
+-- 2008	Beijing
+-- 2012	London
+
+
+-- The SELECT statement returns results from a table. The DELETE statement 
+-- can be used to remove rows from a table. In this example we remove the 2000 games from the table:
+
+DELETE FROM games WHERE yr=2000;
+SELECT * FROM games;
+
+-- CREATE TABLE --
+
+-- 6. The table games shows the year and the city hosting the Olympic Games.
+
+-- games
+-- yr	city
+-- 2004	Athens
+-- 2008	Beijing
+-- 2012	London
+
+-- The CREATE statement builds an empty table to hold rows. In this example the column yr is the PRIMARY KEY:
+
+CREATE TABLE games
+(yr   INT NOT NULL PRIMARY KEY
+,city VARCHAR(20)
+);
+INSERT INTO games(yr,city) VALUES (2004,'Athens');
+INSERT INTO games(yr,city) VALUES (2008,'Beijing');
+INSERT INTO games(yr,city) VALUES (2012,'London');
+SELECT * FROM games;
+
+-- CREATE VIEW --
+
+-- 7. The table games shows the year and the city hosting the Olympic Games.
+
+-- 
+-- games
+-- yr	city
+-- 2004	Athens
+-- 2008	Beijing
+
+-- The CREATE VIEW names a SELECT query. That query may be used as if 
+-- it were a table in many contexts. In this example the VIEW old_games shows those games before 2006.
+
+CREATE VIEW og AS
+  SELECT yr,city FROM games
+   WHERE yr<2006;
+SELECT * FROM og;
+
+-- CREATE INDEX --
+
+-- 8. You can create an index on a table to improve the performance of certain queries.
+
+-- You can create an index that include one or more columns.
+-- There is a small performance cost in creating an index.
+-- Your SELECT queries will run dramatically faster.
+-- Your INSERT, UPDATE and DELETE commands will run slightly slower.
+-- All tables should have a PRIMARY KEY. This will automatically get an index
+-- There is no point in creating an index that is the same as the primary key.
+-- A typical SELECT .. JOIN query involves a FOREIGN KEY in one table and a PRIMARY KEY in another.
+-- You should create an index on the FOREIGN KEY to make the join run faster
+-- The table games shows the year and the city hosting the Olympic Games.
+
+-- games
+-- yr	city
+-- 2000	Sydney
+-- 2004	Athens
+-- 2008	Beijing
+-- 2012	London
+
+-- When you create an index you make it faster to find a particular row. You can also make the JOIN operator faster.
+
+CREATE INDEX gamesIdx ON games(city,yr);
+SELECT yr, city FROM games;
+
+-- DROP --
+
+-- 9. The table games shows the year and the city hosting the Olympic Games.
+
+
+--games
+-- yr	city
+-- 2000	Sydney
+-- 2004	Athens
+-- 2008	Beijing
+-- 2012	London
+
+-- You can drop a table, a view or an index. The data will be lost.
+
+DROP VIEW old_games;
+DROP INDEX gamesIdx ON games;
+
+-- ALTER TABLE --
+
+-- 10. The table games shows the year and the city hosting the Olympic Games.
+
+-- games
+-- yr	city
+-- 2004	Athens
+-- 2006	Turin
+
+-- The ALTER statement can be used to add a column. In this example the column season indicates if the games are winter or summer games.
+
+SELECT * FROM games;
+ALTER TABLE games ADD season VARCHAR(6);
+UPDATE games SET season = 'summer'
+  WHERE yr = 2004;
+UPDATE games SET season = 'winter'
+  WHERE yr = 2006;
+SELECT * FROM games;
+
+
+-- UNION --
+
+-- Make union between different tables to build one single view or request?
+-- List a number of SELECT statements separated by the UNION key word. Be sure that you have the same number of columns in each of the SELECT statements.
+
+SELECT name FROM bbc WHERE name LIKE 'Z%'
+UNION
+SELECT name FROM actor WHERE name LIKE 'Z%'
+
+-- LEFT JOIN --
+
+-- The SELECT .. LEFT JOIN statement
+-- The LEFT JOIN will include rows from the left table even when the linking value is null.
+
+
+-- games
+-- yr	city
+-- 2004	Athens
+-- 2008	Beijing
+-- 2012	London
+-- 2032	
+                        -- city
+                    --name	country
+                    --Sydney	Australia
+                    --Athens	Greece
+                    --Beijing	China
+                    --London	UK
+
+
+-- 11. There is no data on where the 2032 games will be held. The LEFT JOIN 
+-- will include a row for 2032 even though it has no corresponding city
+
+SELECT games.yr, city.country
+  FROM games LEFT JOIN city
+       ON (games.city = city.name);
+
+-- NULL --
+
+-- The NULL value may be used to indicate missing or unknown data. You can use the phrase IS NULL to select these values.
+
+SELECT name,gdp
+FROM world
+WHERE gdp IS NULL;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
