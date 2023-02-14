@@ -1,0 +1,328 @@
+-- Using Joins inner join
+
+SELECT
+  employees.name AS employee_name,
+  employees.role AS employee_role,
+  departments.name AS deparment_name
+FROM
+  employee_data.employees
+INNER JOIN
+  employee_data.departments ON
+  employees.department_id = departments.department_id;
+
+-- Using Joins LEFT join
+
+SELECT
+  employees.name AS employee_name,
+  employees.role AS employee_role,
+  departments.name AS deparment_name
+FROM
+  employee_data.employees
+LEFT JOIN
+  employee_data.departments ON
+  employees.department_id = departments.department_id;
+
+-- let's say table_1 has 100 rows and the table_2 has 10 rows.
+-- They share 10 keys in common.
+
+--Using INNER JOIN --> we get 10 rows in our results.
+
+SELECT 
+	COUNT(*)
+FROM
+	table_1
+INNER JOIN
+	table_2
+ON table_1.key = table_2.key;
+
+-- Using LEFT  JOIN --> we get 100  rows in our results.
+
+SELECT 
+	COUNT(*)
+FROM
+	table_1
+LEFT JOIN
+	table_2
+ON table_1.key = table_2.key;
+
+--  a query that pulls information from both the international_education and country_summary tables.
+
+SELECT 
+    `bigquery-public-data.world_bank_intl_education.international_education`.country_name, 
+    `bigquery-public-data.world_bank_intl_education.country_summary`.country_code, 
+    `bigquery-public-data.world_bank_intl_education.international_education`.value
+FROM 
+    `bigquery-public-data.world_bank_intl_education.international_education`
+INNER JOIN 
+    `bigquery-public-data.world_bank_intl_education.country_summary` 
+ON `bigquery-public-data.world_bank_intl_education.country_summary`.country_code = `bigquery-public-data.world_bank_intl_education.international_education`.country_code
+
+
+-- Try using descriptive aliases that tell you what they represent.
+
+SELECT 
+    edu.country_name,
+    summary.country_code,
+    edu.value
+FROM 
+    `bigquery-public-data.world_bank_intl_education.international_education` AS edu
+INNER JOIN 
+    `bigquery-public-data.world_bank_intl_education.country_summary` AS summary
+ON edu.country_code = summary.country_code;
+
+
+-- Using Joins RIGHT join
+
+SELECT
+  employees.name AS employee_name,
+  employees.role AS employee_role,
+  departments.name AS deparment_name
+FROM
+  employee_data.employees
+RIGHT JOIN
+  employee_data.departments ON
+  employees.department_id = departments.department_id;
+
+-- Using Joins RIGHT join
+
+SELECT
+  employees.name AS employee_name,
+  employees.role AS employee_role,
+  departments.name AS deparment_name
+FROM
+  employee_data.employees
+FULL OUTER JOIN
+  employee_data.departments ON
+  employees.department_id = departments.department_id;
+
+
+-- What is the average amount of money spent per region on education?
+
+SELECT 
+    AVG(edu.value) average_value, summary.region
+FROM 
+    `bigquery-public-data.world_bank_intl_education.international_education` AS edu
+INNER JOIN 
+    `bigquery-public-data.world_bank_intl_education.country_summary` AS summary
+ON edu.country_code = summary.country_code
+WHERE summary.region IS NOT null
+GROUP BY summary.region
+ORDER BY average_value DESC
+
+-- 
+INNER JOINs versus OUTER JOINs
+
+SELECT
+ seasons.market AS university,
+ seasons.name AS team_name,
+ seasons.wins,
+ seasons.losses,
+ seasons.ties,
+ mascots.mascot AS team_mascot
+FROM
+ `bigquery-public-data.ncaa_basketball.mbb_historical_teams_seasons` AS seasons
+LEFT JOIN
+ `bigquery-public-data.ncaa_basketball.mascots` AS mascots
+ON
+ seasons.team_id = mascots.id
+WHERE
+ seasons.season = 1984
+ AND seasons.division = 1
+ORDER BY
+ seasons.market;
+
+-- INNER JOIN
+
+
+SELECT
+ seasons.market AS university,
+ seasons.name AS team_name,
+ seasons.wins,
+ seasons.losses,
+ seasons.ties,
+ mascots.mascot AS team_mascot
+FROM
+ `bigquery-public-data.ncaa_basketball.mbb_historical_teams_seasons` AS seasons
+INNER JOIN
+ `bigquery-public-data.ncaa_basketball.mascots` AS mascots
+ON
+ seasons.team_id = mascots.id
+WHERE
+ seasons.season = 1984
+ AND seasons.division = 1
+ORDER BY
+ seasons.market;
+
+
+-- using aliases with INNER JOIN.
+
+SELECT
+  orders.*,
+  warehouse.warehouse_alias,
+  warehouse.state
+FROM
+  `warehouse_orders.Orders` orders
+JOIN
+  `warehouse_orders.Warehouse` warehouse
+ON orders.warehouse_id = warehouse.warehouse_id;
+
+-- using aliases with INNER JOIN AND COUNT.
+
+
+SELECT
+  COUNT(warehouse.state) as state_mum 
+FROM
+  `warehouse_orders.Orders` orders
+JOIN
+  `warehouse_orders.Warehouse` warehouse
+ON orders.warehouse_id = warehouse.warehouse_id;
+
+
+-- using aliases with INNER JOIN AND COUNT(DISTINCT).
+
+
+SELECT
+  COUNT(DISTINCT warehouse.state) as state_mum 
+FROM
+  `warehouse_orders.Orders` orders
+JOIN
+  `warehouse_orders.Warehouse` warehouse
+ON orders.warehouse_id = warehouse.warehouse_id;
+
+
+-- using aliases with INNER JOIN AND COUNT(DISTINCT) and GROUP BY.
+
+
+SELECT
+  warehouse.state as state,
+  COUNT(DISTINCT order_id) as num_orders 
+FROM
+  `warehouse_orders.Orders` orders
+JOIN
+  `warehouse_orders.Warehouse` warehouse
+ON orders.warehouse_id = warehouse.warehouse_id
+GROUP BY 
+  warehouse.state;
+
+-- Subquery Query inside an other query
+SELECT
+  station_id,
+  num_bikes_available,
+
+(SELECT
+  AVG(num_bikes_available)
+FROM 
+  `bigquery-public-data.new_york.citibike_stations`) AS avg_num_bikes_available
+  FROM  
+    `bigquery-public-data.new_york.citibike_stations`;
+
+-- Subquery Query inside an other query, inside FROM clause
+
+
+SELECT
+  station_id,
+  name,
+  number_of_rides AS number_of_rides_starting_at_station
+FROM
+  (SELECT
+    start_station_id,
+    COUNT(*) number_of_rides
+  FROM 
+    `bigquery-public-data.new_york.citibike_trips`
+  GROUP BY
+    start_station_id
+    )
+    AS station_num_trips
+    INNER JOIN
+
+    `bigquery-public-data.new_york.citibike_stations` ON station_id = start_station_id
+    ORDER BY
+    number_of_rides DESC;
+
+-- Subquery Query inside an other query, inside WHERE clause
+
+
+SELECT
+  station_id,
+  name
+FROM
+ `bigquery-public-data.new_york.citibike_stations`
+ WHERE
+  station_id IN
+  (
+    SELECT
+      start_station_id
+    FROM
+      `bigquery-public-data.new_york.citibike_trips`
+    WHERE 
+      usertype = 'Subscriber'
+  )
+
+-- using subquery
+
+SELECT
+  Warehouse.warehouse_id,
+  CONCAT(Warehouse.state, ': ', Warehouse.warehouse_alias) AS warehouse_name,
+  COUNT(Orders.order_id) AS number_of_orders,
+  (SELECT
+    COUNT(*)
+  FROM warehouse_orders.Orders Orders) AS total_orders,
+    CASE
+      WHEN COUNT(Orders.order_id)/(SELECT COUNT(*) FROM `warehouse_orders.Orders` Orders) <= 0.2
+      THEN "Fulfilled 0-20% orders"
+      WHEN COUNT(Orders.order_id)/(SELECT COUNT(*) FROM `warehouse_orders.Orders` Orders) > 0.2
+      AND COUNT(Orders.order_id)/(SELECT COUNT(*) FROM `warehouse_orders.Orders` Orders) <= 0.6
+      THEN "Fulfilled 21-60% orders"
+    ELSE "Fulfilled more than 60% of orders"
+    END AS fulfillment_summary
+FROM `warehouse_orders.Warehouse` Warehouse
+  LEFT JOIN warehouse_orders.Orders Orders
+  ON Orders.warehouse_id = Warehouse.warehouse_id
+GROUP BY
+  Warehouse.warehouse_id,
+  warehouse_name
+HAVING
+  COUNT(Orders.order_id) > 0;
+
+
+
+
+
+-- Using subquery
+
+SELECT
+  station_id,
+  num_bikes_available,
+  (SELECT
+    avg(num_bikes_available)
+  FROM
+    bigquery-public-data.new_york.citibike_stations) AS avg_num_bikes_available
+FROM
+  bigquery-public-data.new_york.citibike_stations
+
+
+
+-- Subquery
+
+SELECT
+  station_id,
+  name,
+  number_of_rides AS number_of_rides_starting_at_station
+FROM
+  (
+    SELECT
+      start_station_id,
+      COUNT(*) number_of_rides
+      FROM
+        bigquery-public-data.new_york.citibike_trips
+      GROUP BY
+        start_station_id
+
+  ) AS station_num_trips
+  INNER JOIN
+
+    bigquery-public-data.new_york.citibike_stations
+    ORDER BY
+      number_of_rides DESC;
+
+

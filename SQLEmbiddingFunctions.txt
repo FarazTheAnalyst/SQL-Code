@@ -1,0 +1,51 @@
+-- Embidding Functions.
+
+SELECT
+  Date,
+  Region,
+  Small_Bags,
+  Large_Bags,
+  Xlarge_Bags,
+  (Small_Bags + Large_Bags + Xlarge_Bags) AS Total_Bags_Calc
+FROM `avocado_data.avocado_prices`;
+  
+
+-- Finding the  percentage of Small Bags
+
+SELECT
+  Date,
+  Region,
+  Total_Bags,
+  Small_Bags,
+  (Small_Bags / Total_Bags)*100 AS Small_Percent_Bags
+FROM
+  `avocado_data.avocado_prices`
+WHERE
+  Total_Bags <> 0;
+
+-- Finding the  percentage of Small Bags and to 2 decimal places.
+
+SELECT
+  Date,
+  Region,
+  Total_Bags,
+  Small_Bags,
+  Round((Small_Bags / Total_Bags)*100, 2) AS Small_Percent_Bags
+FROM
+  `avocado_data.avocado_prices`
+WHERE
+  Total_Bags <> 0;
+
+-- Finding the  percentage of Small Bags and to 2 decimal places, with percent sign.
+
+SELECT
+  Date,
+  Region,
+  Total_Bags,
+  Small_Bags,
+  CONCAT(Round((Small_Bags / Total_Bags)*100, 2), "%") AS Small_Percent_Bags
+FROM
+  `avocado_data.avocado_prices`
+WHERE
+  Total_Bags <> 0;
+

@@ -1,0 +1,63 @@
+-- Clculations with Extract,COUNT,GROUP BY, ORDER BY.
+
+SELECT
+  EXTRACT(YEAR FROM STARTTIME) AS year,
+  COUNT(*) number_of_rides
+FROM
+  bigquery-public-data.new_york.citibike_trips
+GROUP BY
+  year
+ORDER BY
+  year;
+
+-- ORDER BY DESC
+
+-- Clculations with Extract,COUNT,GROUP BY, ORDER BY.
+
+SELECT
+  EXTRACT(YEAR FROM STARTTIME) AS year,
+  COUNT(*) number_of_rides
+FROM
+  bigquery-public-data.new_york.citibike_trips
+GROUP BY
+  year
+ORDER BY
+	year DESC
+;
+
+--change in ridership in 2013 to 2014
+
+SELECT
+  station_name,
+  ridership_2013,
+  ridership_2014,
+  ridership_2014 - ridership_2013 AS change_2014_raw
+FROM
+  bigquery-public-data.new_york_subway.subway_riderhsip_2013_present;
+
+-- finding average
+
+SELECT
+  station_name,
+  ridership_2013,
+  ridership_2014,
+  ridership_2015,
+  ridership_2016,
+  (ridership_2013 + ridership_2014 + ridership_2015 + ridership_2016) / 4 AS average
+FROM
+  `bigquery-public-data.new_york_subway.subway_ridership_2013_present` 
+
+
+-- finding average 2013 to 2018 with station name 'Atlantic Av - Barclays Ctr'
+SELECT
+  station_name,
+  ridership_2016,
+  ridership_2018,
+  (ridership_2016 + ridership_2018) / 2 AS average
+FROM
+  `bigquery-public-data.new_york_subway.subway_ridership_2013_present`
+WHERE
+  station_name = 'Atlantic Av - Barclays Ctr'
+
+
+

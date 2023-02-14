@@ -1,0 +1,143 @@
+-- Google Big Query SQL
+
+-- Removing duplicates
+
+SELECT
+  DISTINCT(fuel_type)
+FROM
+  `cars.car_info`;
+
+-- Checking Min and Max values in length column
+
+SELECT
+  MIN(length) AS min_length,
+  MAX(length) AS max_length
+FROM
+  cars.car_info;
+
+--checking missing values
+
+SELECT
+  *
+FROM
+  cars.car_info
+WHERE
+  num_of_doors IS NULL;
+
+-- updating NULL values
+
+UPDATE
+  cars.car_info
+SET
+  set_num_doors = "four"
+WHERE
+  make = "dodge"
+  AND fule_type = "gas"
+  AND body_style = 'sedan';
+
+-- Checking NULL values again
+
+SELECT
+  *
+FROM
+  cars.car_info
+WHERE
+  num_of_doors IS NULL;
+
+-- Updating NULL values
+
+UPDATE
+  `cars.car_info`
+SET 
+ make = "mazda"
+ AND fuel_type = "gas"
+ AND body_style = "sedan";
+
+-- run this query to check the num_of_cylinders column
+
+SELECT
+  DISTINCT(num_of_cylinders)
+FROM
+  cars.car_info;
+
+-- Updating missspelling for all rows
+
+UPDATE
+  cars.car_info
+SET
+  num_of_cylinders = "two"
+WHERE
+  num_of_cylinders = "tow";
+
+-- Checking again after correcting misspelling
+
+SELECT
+  DISTINCT(num_of_cylinders)
+FROM
+  `cars.car_info`;
+
+-- Checking MAX and MIN values
+
+SELECT
+  MIN(compression_ratio) AS min_compression_ratio,
+  MAX(compression_ratio) AS max_compression_ratio
+FROM
+  `cars.car_info`;
+
+--  to make sure that the rest of the values fall within the expected range of 7 to 23
+
+SELECT
+  MIN(compression_ratio) AS min_compression_ratio,
+  MAX(compression_ratio) AS max_compression_ratio
+FROM
+  `cars.car_info`
+WHERE
+  compression_ratio <> 70;
+
+-- checking how many rows contain value 70
+
+SELECT
+  COUNT(*) AS num_of_rows_to_delete
+FROM
+  `cars.car_info`
+WHERE
+  compression_ratio = 70;
+
+-- Deleting rows
+
+DELETE
+  `cars.car_info`
+WHERE
+  compression_ratio = 70;
+
+-- Check the drive_wheels column for inconsistencies
+
+SELECT
+  DISTINCT(drive_wheels)
+FROM
+  cars.car_info;
+
+-- It appears that 4wd appears twice in results may be there's a extra space in there
+-- we will use LENGTH()
+
+SELECT
+  DISTINCT(drive_wheels),
+  LENGTH(drive_wheels) AS string_length
+FROM
+  `cars.car_info`;
+
+-- Updating and TRIMING extra spaces
+
+UPDATE
+  cars.car_info
+SET
+  drive_wheels = TRIM(drive_wheels)
+WHERE TRUE;
+
+--  run the SELECT DISTINCT statement again to ensure that there are only three distinct values
+
+SELECT
+  DISTINCT(drive_wheels)
+FROM
+  `cars.car_info`;
+

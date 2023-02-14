@@ -1,0 +1,21 @@
+--  Question 9
+You are working with a database table that contains customer data. The table includes columns about customer location such as city, state, and country. The state names are abbreviated. You want to retrieve the first 2 letters of each state name. You decide to use the SUBSTR function to retrieve the first 2 letters of each state name, and use the AS command to store the result in a new column called new_state. 
+
+You write the SQL query below. Add a statement to your SQL query that will retrieve the first 2 letters of each state name and store the result in a new column as new_state. 
+
+SELECT
+customer_id,
+SUBSTR(state,1,2) AS new_state
+FROM
+customer
+ORDER BY
+state DESC
+
+-- You are working with a database table that contains customer data. The table includes columns about customer location such as city, state, country, and postal_code. You want to check for postal codes that are greater than 7 characters long. 
+
+SELECT 
+*
+FROM
+customer
+WHERE
+LENGTH(postal_code) > 7;

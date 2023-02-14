@@ -1,0 +1,74 @@
+-- Googel Big QUERY SQL
+
+-- Getting Data from purchase_price column in descending order
+
+SELECT
+  purchase_price
+FROM
+  `customer_dataa.customer_purchase`
+ORDER BY
+  purchase_price DESC;
+
+-- Changing Data type with CAST()
+
+SELECT
+  CAST(purchase_price AS FLOAT64)
+FROM
+  `customer_dataa.customer_purchase`
+ORDER BY
+  CAST(purchase_price AS FLOAT64) DESC;
+
+
+-- Changing Data type with CAST()
+
+SELECT
+  CAST(date AS date) as date_only,
+  purchase_price
+FROM
+  `customer_dataa.customer_purchase`
+WHERE
+  date BETWEEN '2020-12-01' AND '2020-12-31'
+
+-- Using CONCATE function to combine strings togather.
+
+SELECT
+  CONCAT(product_code, product_color) AS new_product
+FROM
+  `customer_dataa.customer_purchase`
+WHERE
+  product = 'couch'
+
+
+-- Using CONCATE function to combine strings togather.
+
+SELECT
+  CONCAT(product_code, product_color) AS new_product
+FROM
+  `customer_dataa.customer_purchase`
+WHERE
+  product = 'couch'
+
+
+-- Using COALESCE function to return non Null values.
+
+SELECT
+  COALESCE(product, product_code) AS product_info
+FROM
+  `customer_dataa.customer_purchase`;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,20 @@
+-- Filtering Genre Column Comedy
+
+SELECT
+  *
+FROM
+  movie_data.movies
+WHERE
+  Genre = 'Comedy';
+
+-- -- Sorting data in release date column in descending order.
+
+SELECT *
+FROM `movie_data.movies`
+ORDER BY Release_Date DESC;
+
+-- -- Sorting data in release date column in ascending order.
+
+SELECT *
+FROM `movie_data.movies`
+ORDER BY Release_Date;

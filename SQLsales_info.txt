@@ -1,0 +1,68 @@
+-- Ensure that import was successful  by running this query
+
+SELECT
+  *
+FROM
+  `my-project-dataset-372903.sales.sales_info`
+LIMIT
+  10;
+
+--  Next, inspect the data to find out how many years of sales data it includes
+
+SELECT
+  MIN(Date) AS mix_date,
+  MAX(Date) AS man_date
+FROM
+  `my-project-dataset-372903.sales.sales_info`;
+
+-- temporary tab
+WITH trips_over_1_hr AS (
+  SELECT *
+  FROM
+    `bigquery-public-data.new_york.citibike_trips`
+  WHERE
+  tripduration >= 60
+  )
+
+  ## COUNT how many trips are 60+ minutes long.
+
+  SELECT
+    COUNT(*) AS cnt
+  FROM
+    trips_over_1_hr;
+
+
+-- temporary table
+
+WITH 
+  longest_used_bike AS (
+    SELECT
+      bikeid,
+      SUM(duration_minutes) AS trip_duration
+    FROM
+      `bigquery-public-data.austin_bikeshare.bikeshare_trips`
+    GROUP BY
+      bikeid
+    ORDER BY
+      trip_duration DESC
+    LIMIT
+      1
+  )
+
+  ##  find station at which the longest-used bike leaves most often
+
+SELECT
+  trips.start_station_id,
+  COUNT(*) AS trip_ct
+FROM
+  longest_used_bike AS longest
+INNER JOIN
+  `bigquery-public-data.austin_bikeshare.bikeshare_trips` AS trips
+ON longest.bikeid = trips.bikeid
+GROUP BY
+  trips.start_station_id
+ORDER BY
+  trip_ct DESC
+LIMIT 
+  1;
+

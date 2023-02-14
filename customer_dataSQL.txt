@@ -1,0 +1,103 @@
+-- Google Big Query SQL
+
+-- The media_types table contains the following columns: MediaTypeId and Name.
+
+Create a query to return the Name column from this table.
+
+SELECT
+    name
+FROM
+    media_types;
+
+
+-- The customers table contains the following columns: CustomerId, FirstName, LastName, Company, Address, City, State, Country, PostalCode, Phone, Fax, Email, SupportRepId.
+
+Create a query to return the LastName and Country columns from this table for only customers in Germany.
+
+SELECT 
+    LastName,
+    Country
+FROM
+    customers
+WHERE
+    Country = 'Germany';
+
+-- If adding DISTINCT to the query didn't make sense, you may need a refresher on how to write a query. Try the following. 
+
+The tracks table contains the following columns: TrackId, Name, AlbumId, MediaTypeId, GenreId, Composer, Milliseconds, Bytes, and UnitPrice.
+
+Create a query to return the TrackId, AlbumId, Composer and UnitPrice columns from this table.
+
+SELECT 
+    TrackId,
+    AlbumId,
+    Composer,
+    UnitPrice
+FROM
+    tracks;
+
+-- The invoices table contains the following columns: InvoiceId, CustomerId, InvoiceDate, BillingAddress, BillingCity, BillingState, BillingCountry, BillingPostalCode, Total.
+
+Create a query to return the CustomerId, InvoiceDate and Total columns from this table for only invoice totals over $20.
+
+SELECT
+     CustomerId,
+     InvoiceDate,
+     Total
+FROM
+    invoices
+WHERE
+    Total > 20;
+
+-- -- Rmoving duplicates
+
+SELECT
+  DISTINCT(customer_id)
+FROM
+  `customer_data.customer_address`;
+
+-- To check string length
+
+SELECT
+  LENGTH(country) AS letters_in_country
+FROM
+  `customer_data.customer_address`;
+
+-- To check string length greater than 2
+
+SELECT
+  country
+FROM
+  `customer_data.customer_address`
+WHERE
+  LENGTH(country) > 2;
+
+-- Using SUBSTR() to get US coutry with 2 letters
+
+SELECT
+  customer_id
+FROM
+  `customer_data.customer_address`
+WHERE
+  SUBSTR(country,1,2) = 'US';
+
+-- Using SUBSTR() to get US coutry with 2 letters with unique(removing duplicates) customer_id
+
+SELECT
+  DISTINCT(customer_id)
+FROM
+  `customer_data.customer_address`
+WHERE
+  SUBSTR(country,1,2) = 'US';
+
+-- To remove extra spaces in the state column where state is OHIO.
+
+SELECT
+  DISTINCT(customer_id)
+FROM
+  `customer_data.customer_address`
+WHERE
+  TRIM(state) = 'OH';
+
+
+
