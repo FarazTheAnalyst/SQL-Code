@@ -1,0 +1,8 @@
+-- Control of Flow
+-- Transact-SQL (T-SQL) statements are executed in sequential order (suppose we
+-- have created three statements), first statement will, followed by second and
+-- followed by third
+-- however's, in many cases we interrupt this normal flow.
+-- T-SQL has keywords to control the order of executioin
+-- like BEGIN END, IF-ELSE, WHILE, BREAK, CONTINUE, GOTO, RETURN, TRY-CATCH, THROW,
+-- WAITFOR
