@@ -1,0 +1,172 @@
+/**1. From the following table, create a view for those salespeople who 
+belong to the city of New York.
+**/
+CREATE VIEW newyork_staff
+AS 
+SELECT * FROM salesman
+WHERE city='New York';
+
+/**
+2. From the following table, create a view for all salespersons. 
+Return salesperson ID, name, and city.
+**/
+CREATE VIEW salespersons
+as 
+SELECT salesman_id, name, city FROM salesman;
+
+/**
+3. From the following table, create a view to locate the salespeople in 
+the city 'New York'.
+**/
+CREATE VIEW newyork_staff
+as
+SELECT * FROM salesman
+WHERE city = 'New York';
+
+/**
+4. From the following table, create a view that counts the number of 
+customers in each grade.
+**/
+CREATE VIEW V_COUNT_CUSTOMERS(grade, number)
+as
+SELECT grade, count(grade) FROM customer
+GROUP BY grade;
+
+/**
+5. From the following table, create a view to count the number of unique 
+customers, compute the average and the total purchase amount of customer 
+orders by each date.
+**/
+CREATE VIEW v_totalforday
+as
+SELECT ord_date, count(DISTINCT customer_id), avg(purch_amt), sum(purch_amt) FROM orders
+GROUP BY ord_date;
+
+/**
+6. From the following tables, create a view to get the salesperson and 
+customer by name. Return order name, purchase amount, salesperson ID, name, customer name.
+**/
+CREATE VIEW V_name_orders
+as SELECT o.ord_no, o.purch_amt, a.salesman_id, a.name, c.cust_name
+FROM orders o JOIN customer c
+ON o.customer_id = c.customer_id
+JOIN salesman a
+ON o.salesman_id = a.salesman_id;
+
+/**
+7. From the following table, create a view to find the salesperson who 
+handles a customer who makes the highest order of the day. 
+Return order date, salesperson ID, name
+**/
+CREATE VIEW V_elite_Salesman
+as 
+SELECT o.ord_date, a.salesman_id, a.name
+FROM orders o JOIN salesman a
+ON o.salesman_id = a.salesman_id
+WHERE o.purch_amt = (
+                  SELECT MAX(purch_amt)
+             FROM orders c
+WHERE c.ord_date = b.ord_date);
+
+/**
+8. From the following table, create a view to find the salesperson who 
+deals with the customer with the highest order at least three times per 
+day. Return salesperson ID and name.
+**/
+CREATE VIEW v_incentive
+as 
+SELECT DISTINCT salesman_id, name
+FROM elitsalesman a
+WHERE 3<=
+(SELECT COUNT(*)
+FROM elitesalesman b
+WHERE a.salessman_id = b.salesman_id);
+
+/**
+9. From the following table, create a view to find all the customers who 
+have the highest grade. Return all the fields of customer.
+**/
+CREATE VIEW V_highgrade
+as
+SELECT * FROM customer
+WHERE grade = (SELECT MAX(grade)
+FROM customer);
+
+/**
+10. From the following table, create a view to count the number of 
+salespeople in each city. Return city, number of salespersons.
+**/
+CREATE VIEW V_citynum
+as
+SELECT city, COUNT(DISTINCT salesman_id)
+FROM salesman 
+GROUP BY city;
+
+/**
+11. From the following table, create a view to compute the average 
+purchase amount and total purchase amount for each salesperson. 
+Return name, average purchase and total purchase amount. (Assume all names are unique.).
+**/
+CREATE VIEW V_norders
+as
+SELECT s.name, avg(purch_amt), sum(purch_amt)
+FROM salesman s JOIN orders o
+ON s.salesman_id = o.salesman_id
+GROUP BY name;
+
+/**
+12. From the following table, create a view to identify salespeople who 
+work with multiple clients. Return all the fields of salesperson.
+**/
+CREATE VIEW mcustomer
+as
+SELECT *
+FROM salesman a
+WHERE 1<
+(SELECT COUNT(*)
+customer b
+WHERE a.salesman_id = b.salesman_id);
+
+/**
+13. From the following table, create a view that shows all matching 
+customers with salespeople, ensuring that at least one customer in the 
+city of the customer is served by the salesperson in the city of the salesperson.
+**/
+CREATE VIEW V_citymatch(custcity, salescity)
+as
+SELECT DISTINCT a.city, b.city
+FROM customer c JOIN salesman s
+WHERE s.salesman_id = b.salesman_id;
+
+/**
+14. From the following table, create a view to display the number of 
+orders per day. Return order date and number of orders.
+**/
+CREATE VIEW v_dateord(ord_date, odcount)
+as
+SELECT ord_date, count(*)
+FROM orders
+GROUP BY ord_date;
+
+/**
+15. From the following table, create a view to find the salespeople 
+who placed orders on October 10th, 2012. Return all the fields of salesperson.
+**/CREATE VIEW V_sales_man_on_oct
+as
+SELECT * FROM salesman
+WHERE salesman_id IN(SELECT salesman_id FROM orders
+WHERE ord_date = '2012-10-10');
+
+/**
+16. From the following table, create a view to find the salespersons who 
+issued orders on either August 17th, 2012 or October 10th, 2012. 
+Return salesperson ID, order number and customer ID.
+**/
+CREATE VIEW v_sorder
+as
+SELECT salesman_id, ord_no, customer_id
+FROM orders
+WHERE ord_date IN('2012-08-17', '2012-10-10);
+
+
+
