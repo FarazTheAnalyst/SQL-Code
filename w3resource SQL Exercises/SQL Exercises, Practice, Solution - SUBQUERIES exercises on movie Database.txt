@@ -1,0 +1,474 @@
+/**
+1. From the following table, write a SQL query to find the actors who 
+played a role in the movie 'Annie Hall'. Return all the fields of actor table.
+**/
+SELECT * 
+FROM actor 
+WHERE act_id IN(SELECT act_id 
+  FROM movie_cast 
+  WHERE mov_id IN (SELECT mov_id 
+    FROM movie 
+    WHERE mov_title='Annie Hall'));
+
+/**
+2. From the following tables, write a SQL query to find the director of a 
+film that cast a role in 'Eyes Wide Shut'. Return director first name, last name.
+**/
+SELECT dir_fname, dir_lname
+FROM  director
+WHERE dir_id IN (SELECT dir_id 
+  FROM movie_direction
+  WHERE mov_id IN (SELECT mov_id 
+    FROM movie_cast 
+    WHERE role = ANY (SELECT role 
+      FROM movie_cast 
+      WHERE mov_id IN (SELECT mov_id FROM movie
+       WHERE mov_title = 'Eyes Wide Shut'))));
+
+/**
+3. From the following table, write a SQL query to find those movies that 
+have been released in countries other than the United Kingdom. 
+Return movie title, movie year, movie time, and date of release, releasing country.
+**/
+SELECT mov_title, mov_year, mov_time, mov_dt_rel, mov_rel_country 
+FROM movie
+WHERE mov_rel_country NOT IN ('UK');
+
+/**
+4. From the following tables, write a SQL query to find for movies whose 
+reviewer is unknown. Return movie title, year, release date, director 
+first name, last name, actor first name, last name.
+**/
+SELECT a.mov_title, a.mov_year, a.mov_dt_rel, 
+       c.dir_fname, c.dir_lname, f.act_fname, f.act_lname
+FROM movie a
+INNER JOIN movie_direction b ON a.mov_id = b.mov_id
+INNER JOIN director c ON b.dir_id = c.dir_id
+INNER JOIN rating d ON a.mov_id = d.mov_id
+INNER JOIN reviewer e ON d.rev_id = e.rev_id
+INNER JOIN movie_cast g ON a.mov_id = g.mov_id
+INNER JOIN actor f ON g.act_id = f.act_id
+WHERE e.rev_name IS NULL;
+
+/**
+5. From the following tables, write a SQL query to find those movies 
+directed by the director whose first name is Woddy and last name is Allen. 
+Return movie title.
+**/
+SELECT mov_title 
+FROM movie 
+WHERE mov_id = (SELECT mov_id 
+  FROM movie_direction 
+  WHERE dir_id=(SELECT dir_id 
+    FROM director 
+    WHERE dir_fname='Woody' AND dir_lname='Allen'
+  )
+);
+
+/**
+6. From the following tables, write a SQL query to determine those years 
+in which there was at least one movie that received a rating of at least 
+three stars. Sort the result-set in ascending order by movie year. Return movie year.
+**/
+SELECT DISTINCT mov_year FROM movie
+WHERE mov_id IN(SELECT mov_id FROM rating
+WHERE rev_stars > 3)
+ORDER BY mov_year;
+
+/**
+7. From the following table, write a SQL query to search for movies that 
+do not have any ratings. Return movie title
+**/
+SELECT DISTINCT mov_title From movie
+WHERE mov_id  IN (SELECT mov_id 
+  FROM movie 
+  WHERE mov_id NOT IN (
+    SELECT mov_id 
+    FROM Rating
+  )
+);
+
+/**
+8. From the following tables, write a SQL query to find the player who 
+scored the last goal for Portugal against Hungary. Return player name.
+**/
+SELECT player_name 
+FROM player_mast 
+WHERE player_id=(
+  SELECT player_id 
+  FROM goal_details 
+    where match_no=(SELECT match_no FROM match_details 
+WHERE team_id=(
+SELECT country_id FROM soccer_country 
+WHERE country_name='Hungary') 
+or team_id=(SELECT country_id FROM soccer_country 
+WHERE country_name='Portugal') 
+GROUP BY match_no HAVING COUNT(DISTINCT team_id)=2) 
+    AND team_id=(SELECT team_id
+FROM soccer_country a, soccer_team b
+WHERE a.country_id=b.team_id AND country_name='Portugal') 
+    AND goal_time=(
+      SELECT max(goal_time) 
+      FROM goal_details 
+        WHERE match_no=(SELECT match_no FROM match_details 
+WHERE team_id=(
+SELECT country_id FROM soccer_country 
+WHERE country_name='Hungary') 
+or team_id=(SELECT country_id FROM soccer_country 
+WHERE country_name='Portugal') 
+GROUP BY match_no HAVING COUNT(DISTINCT team_id)=2) AND team_id=(
+SELECT team_id
+FROM soccer_country a, soccer_team b
+WHERE a.country_id=b.team_id AND country_name='Portugal'))
+                );
+
+/**
+9. From the following table, write a SQL query to find the second-highest stoppage time in the second half.
+**/
+select max(stop_sec)
+FROM match_mast
+WHERE stop2_sec <> (select max(stop2_sec)
+FROM match_mast);
+
+/**
+10. From the following table, write a SQL query to find the teams played 
+the match where the second highest stoppage time had been added in the 
+second half of play. Return country name of the teams.
+**/
+SELECT country_name 
+FROM soccer_country 
+WHERE country_id IN(
+SELECT team_id 
+FROM match_details 
+WHERE match_no IN(
+SELECT match_no 
+FROM match_mast 
+WHERE stop2_sec=(
+SELECT max(stop2_sec) 
+FROM match_mast
+WHERE stop2_sec<>(
+SELECT max(stop2_sec) 
+FROM match_mast))));
+
+/**
+11. From the following table, write a SQL query to find the teams played 
+the match where second highest stoppage time had been added in second 
+half of play. Return match_no, play_date, stop2_sec
+**/
+SELECT match_no, play_date, stop2_sec
+FROM match_mast
+WHERE stop2_sec = (select max(stop2_sec) from match_mast
+WHERE stop2_sec <> (select max(stop2_sec) from match_mast));
+
+/**
+12. From the following tables, write a SQL query to find the team, 
+which was defeated by Portugal in EURO cup 2016 final. Return the country
+ name of the team.
+**/
+SELECT country_name FROM soccer_country
+WHERE country_id = (select team_id FROM match_details
+WHERE play_stage = 'F'
+AND team_id <> (
+SELECT country_id
+FROM soccer_country
+WHERE country_name = 'Portugal'));
+
+/**
+13. From the following table, write a SQL query to find the club, which 
+supplied the most number of players to the 2016-EURO cup. Return club name, number of players.
+**/
+SELECT playing_club, COUNT(playing_club) 
+FROM player_mast  GROUP BY playing_club 
+HAVING COUNT (playing_club) =  (
+SELECT MAX(mycount) 
+FROM (SELECT playing_club, COUNT(playing_club) mycount 
+FROM player_mast 
+GROUP BY playing_club) pm) ;
+
+/**
+14. From the following tables, write a SQL query to find the player who 
+scored the first penalty of the tournament. Return player name and Jersey number.
+**/
+SELECT player_name, jersey_no FROM player_mast
+WHERE player_id IN (select player_id FROM goal_details
+WHERE goal_type = 'P'
+AND match_no = (
+select min(match_no)
+from goal_details
+WHERE goal_type = 'P'
+AND play_stage = 'G'));
+
+/**
+15. From the following tables, write a SQL query to find the player who 
+scored the first penalty in the tournament. Return player name, Jersey number and country name.
+**/
+SELECT a.player_name, a.jersey_no, d.country_name
+FROM player_mast a 
+JOIN goal_details b ON a.player_id = b.player_id
+JOIN soccer_country d ON b.team_id = d.country_id
+WHERE a.player_id = (
+    SELECT b.player_id
+    FROM goal_details b
+    WHERE b.goal_type = 'P'
+    AND b.match_no = (
+        SELECT MIN(c.match_no)
+        FROM goal_details c
+        WHERE c.goal_type = 'P'
+        AND c.play_stage = 'G'
+    )
+)
+GROUP BY a.player_name, a.jersey_no, d.country_name;
+
+/**
+16. From the following tables, write a SQL query to find the goalkeeper 
+for Italy in penalty shootout against Germany in Football EURO cup 2016. 
+Return goalkeeper name.
+**/
+SELECT player_name
+FROM player_mast
+WHERE player_id = (SELECT player_gk
+FROM penalty_gk
+WHERE match_no = (SELECT match_no FROM penalty_gk
+WHERE team_id = (SELECT country_id FROM soccer_country
+WHERE country_name = 'Italy')
+OR team_id = (SELECT country_id FROM soccer_country
+WHERE country_name = 'Germany')
+GROUP BY match_no
+HAVING COUNT(DISTINCT team_id) =2)
+AND team_id = (SELECT country_id FROM soccer_country
+WHERE country_name = 'Italy'));
+
+/**
+17. From the following tables, write a SQL query to find the number of 
+goals Germany scored at the tournament.
+**/
+SELECT count(*) FROM goal_details
+WHERE team_id IN (SELECT country_id FROM soccer_country
+WHERE country_name = 'Germany');
+
+/**
+18. From the following table, write a SQL query to find the players who 
+were the goalkeepers of the England team that played in the 2016-EURO. 
+Return player name, jersey number, club name
+**/
+SELECT pm.player_name, pm.jersey_no, pm.playing_club
+FROM player_mast pm JOIN soccer_country sc
+ON pm.team_id = sc.country_id
+WHERE posi_to_play = 'GK'
+and country_name = 'England';
+
+/**
+19. From the following table, write a SQL query to find the Liverpool 
+players who were part of England's squad at the 2016 Euro Cup. 
+Return player name, jersey number, and position to play, age.
+**/
+SELECT pm.player_name, pm.jersey_no, pm.posi_to_play, pm.age
+FROM player_mast pm JOIN soccer_country sc
+ON pm.team_id = sc.country_id
+WHERE pm.playing_club = 'Liverpool'
+and sc.country_name = 'England';
+
+/**
+20. From the following table, write a SQL query to find the players who 
+scored the last goal in the second semi-final, i.e., the 50th match of 
+the 2016-EURO Cup. Return player name, goal time, goal half, country name.
+**/
+SELECT pm.player_name, gd.goal_time, gd.goal_half, sc.country_name 
+FROM player_mast pm JOIN goal_details gd
+ON pm.player_id = gd.player_id
+JOIN soccer_country sc 
+ON gd.team_id = sc.country_id 
+WHERE gd.match_no  = 50
+AND gd.goal_time =  (Select Max(goal_time) FROM goal_details
+WHERE match_no = 50);
+
+/**
+21. From the following table, write a SQL query to find out who was the 
+captain of Portugal's winning EURO cup 2016 team. Return the captain name.
+**/
+SELECT player_name
+FROM player_mast
+WHERE player_id IN (
+SELECT player_captain 
+FROM match_captain
+WHERE  team_id=(
+SELECT team_id
+FROM match_details
+WHERE play_stage='F' AND win_lose='W'));
+
+/**
+22. From the following tables, write a SQL query to count the number of 
+players played for 'France’ in the final. Return 'Number of players 
+shared fields'.
+**/
+SELECT COUNT(*)+11 as "Number of players shared fields" 
+FROM player_in_out 
+WHERE match_no=(
+SELECT match_no 
+FROM match_mast 
+WHERE play_stage='F')
+AND in_out='I' 
+AND team_id=(
+SELECT country_id 
+FROM soccer_country 
+WHERE country_name='France');
+
+/**
+23. From the following table, write a SQL query to find the Germany 
+goalkeeper who did not concede any goals in their group stage matches. 
+Return goalkeeper name, jersey number.
+**/
+SELECT player_name,jersey_no 
+FROM player_mast 
+WHERE player_id IN(
+SELECT player_gk 
+FROM match_details 
+WHERE  play_stage='G' and team_id IN(
+SELECT country_id 
+FROM soccer_country 
+WHERE country_name='Germany'));
+
+
+/**
+24. From the following tables, write a SQL query to find the runners-up 
+in Football EURO cup 2016. Return country name.
+**/
+SELECT country_name 
+FROM soccer_country 
+WHERE country_id=(
+SELECT team_id 
+FROM match_details 
+WHERE play_stage='F' AND win_lose='L'
+AND team_id<>(
+SELECT country_id 
+FROM soccer_country 
+WHERE country_name='Portugal'));
+
+/**
+25. From the following tables, write a SQL query to find the maximum 
+penalty shots taken by the teams. Return country name, maximum penalty shots.
+**/
+SELECT sc.country_name, max(ps.*) shots
+FROM soccer_country sc join penalty_shootout ps
+ON sc.country_id = ps.team_id
+GROUP BY country_name
+HAVING max(shots) =(SELECT max(shots) FROM (
+select count(*) shots FROM penalty_shootout
+GROUP BY team_id) inner_result);
+
+/**
+26. From the following tables, write a SQL query to find the maximum 
+number of penalty shots taken by the players. Return country name, 
+player name, jersey number and number of penalty shots.
+**/
+SELECT c.country_name,a.player_name, a.jersey_no,COUNT(b.*) shots 
+FROM player_mast a, penalty_shootout b, soccer_country c
+WHERE b.player_id=a.player_id
+AND b.team_id=c.country_id
+GROUP BY c.country_name,a.player_name,a.jersey_no
+HAVING COUNT(b.*)=(
+SELECT MAX(shots) FROM (
+SELECT COUNT(*) shots 
+FROM penalty_shootout
+GROUP BY player_id) inner_result);
+
+/**
+27. From the following table, write a SQL query to find the matches with 
+the most penalty shots.
+**/
+SELECT match_no, count(*) shots FROM 
+penalty_shootout
+GROUP BY match_no
+having count(*) = (select max(shots) from (
+select count(*) shots from penalty_shootout
+group by match_no) inner_result);
+
+/**
+28. From the following table, write a SQL query to determine the match 
+number where the most penalty shots were taken. Return match number, country name.
+**/
+SELECT b.match_no,
+       a.country_name
+FROM penalty_shootout b,
+     soccer_country a
+WHERE b.team_id=a.country_id
+  AND match_no=
+    (SELECT match_no
+     FROM penalty_shootout
+     GROUP BY match_no
+     HAVING COUNT(*)=
+       (SELECT MAX(shots)
+        FROM
+          (SELECT COUNT(*) shots
+           FROM penalty_shootout
+           GROUP BY match_no) inner_result))
+GROUP BY b.match_no,
+         a.country_name;
+
+
+/**
+From the following table, write a SQL query to find the player of 
+‘Portugal’ who took the seventh kick against ‘Poland’. 
+Return match number, player name and kick number.
+**/
+SELECT a.match_no,
+       b.player_name,
+       a.kick_no
+FROM penalty_shootout a,
+     player_mast b
+WHERE a.player_id=b.player_id
+  AND kick_no=7
+  AND match_no=
+    (SELECT match_no
+     FROM penalty_shootout
+     WHERE team_id =
+         (SELECT country_id
+          FROM soccer_country
+          WHERE country_name='Portugal' )
+group by match_no)
+GROUP BY match_no,
+         player_name,
+         kick_id;
+
+/**
+30. From the following table, write a SQL query to find the stage of 
+the match where penalty kick number 23 was taken. Return match number, 
+play_stage.
+**/SELECT match_no, play_stage
+FROM match_mast 
+WHERE match_no = 
+(select match_no FROM penalty_shootout
+WHERE kick_id = 23);
+
+/**
+31. From the following table, write a SQL query to find the venues
+ where penalty shoot-out matches were played. Return venue name.
+**/
+SELECT venue_name FROM soccer_venue
+WHERE venue_id IN  (SELECT venue_id FROM match_mast
+WHERE match_no IN (select DISTINCT match_no FROM penalty_shootout));
+
+/**
+32. From the following table, write a SQL query to find out when 
+the penalty shootout matches were played. Return playing date.
+**/
+SELECT play_date FROM match_mast
+WHERE match_no IN (SELECT match_no FROM penalty_shootout)
+
+/**
+33. From the following table, write a SQL query to find the fastest goal 
+at the EURO cup 2016, after 5 minutes. Return 'Quickest goal after 5 minutes'
+**/
+SELECT MIN(goal_time) AS "Most quickest goal after 5 minutes"
+FROM goal_details
+WHERE goal_time > 5;
+
+
+
+
+
+
+
+
+
+
